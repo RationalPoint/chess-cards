@@ -4,15 +4,15 @@ r"""Script to make flash cards out of a collection of fens and strings describin
 solutions to the problems.
 
 The file that holds the position data should be a yaml file corresponding to a
-dictionary whose keys are cards (named whatever, the card names aren't used),
-and whose values are dicts with the following key/value pairs:
+dictionary whose keys are cards (named whatever, the card names aren't used), and whose values are dicts with the following key/value pairs:
 
-  'fen': a fen string for the position
-  'description': Description of the card (type of puzzle, 
-                 where in the book it's from, etc.)
-  'instructions': Instructions for the puzzle (if not given, 
-                  White/Black to move will be used)
-  'solution': The solution to the puzzle.
+  'fen': a fen string for the position (required)
+  'description': Description of the card, type of puzzle, 
+                 where in the book it's from, etc. (optional)
+  'instructions': Instructions for the puzzle (optional; if not given, 
+                  "White/Black to move" will be used)
+  'solution': The solution to the puzzle (required)
+  'difficulty': easy/hard (optional; if not given, "easy" is assumed)
 
 Top color choices (light/black squares):
   chess.com colors: eeeed2/769656
@@ -27,11 +27,6 @@ decks in a sandboxed environment /Library/Anki. Once that's working, I export
 the deck and then import it to my main Anki environment (the one that's sync'd
 across devices).
 
-
-TODO:
-- Is there an attribute to organize decks together? This seemed possible when I
-  looked at shared decks.
-- Do I want to add some html for lists when I have multiple variations like (A), (B), (C), etc.?
 
 """
 
