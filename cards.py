@@ -108,14 +108,28 @@ def convert_ordered_list_to_html(string):
     are fewer than 2 list items, no changes are made. 
 
   """
-  matches = re.findall('\((\w)\)',s)
+  matches = re.findall('\((\w)\)',string) # Grab letters A,B,C in parens
   if len(matches) < 2:
     return string
-  new_string = ''
-  for c in matches:
-    tmp = string.split('({}')
-  # <ol type="A">'
+  if matches[0] != 'A':
+    raise RuntimeError('Expected (A) for first list item, got {}'.format(matches[0]))
   
+  new_string = ''
+  numitems = len(matches)
+  for i,c in enumerate(matches):
+    tmp = string.split('({})'.format(c))
+    if len(tmp) != 2:
+      msg = 'Unable to split the following string at ({}):\n  {}'
+      raise RuntimeError(msg.format(c,string))
+    new_string += tmp[0]
+    string = tmp[1]
+    if i == 0:
+      new_string += '<ol type="A"><li>'
+    elif i < numitems-1:
+      new_string += '</li><li>'
+    else:
+      new_string += '</li><li>' + tmp[1] + '</li></ol>'
+  return new_string
 
 ################################################################################
 
@@ -271,7 +285,8 @@ for card in puzzle_dict.values():
 
   front = pos + r'<br><hr3><i>' + instr + r'</i></hr3>'
 
-  
+
+  soln = convert_ordered_list_to_html(soln)
   back = r'<b>' + soln + r'</b>'
   if desc is not None:
     back += r'<hr>' + desc
