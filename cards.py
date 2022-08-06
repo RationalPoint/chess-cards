@@ -255,9 +255,14 @@ puzzle_dict = yaml.safe_load(open(fenfile,'r'))
 puzzles = {}
 num_puzzles = 0
 for val in puzzle_dict.values():
-  if val.get('fen') is None: continue
-  if val.get('solution') is None: continue
+  fen = val.get('fen')
+  soln = val.get('solution')
+  desc = val.get('description')
   diff = val.get('difficulty')
+  if soln is not None and fen is None:
+    raise ValueError('Solution with no fen: {}'.format(desc))
+  if fen is None: continue
+  if soln is None: continue
   if diff is None:
     diff = 'easy'
   else:
