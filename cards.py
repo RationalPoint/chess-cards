@@ -37,8 +37,10 @@ import subprocess
 import sys
 import yaml
 
+
 from anki.storage import Collection 
 import chess, chess.svg
+
 
 ################################################################################
 #################################  UTILITIES  ##################################
@@ -194,6 +196,7 @@ if deckname is None:
   # Get deck name: assuming fenfile of the form blah/blah/blah/blah.fen
   filename = fenfile.split('/')[-1]
   deckname,_ = filename.split('.')
+decknames = [deckname] # If appropriate, add deckname for hard puzzles later
 
 colorchoice = args.colorscheme
 if colorchoice == 'all':
@@ -228,7 +231,8 @@ if args.template > 0:
     s += '  description: "Position :"\n'
     s += '  fen:\n'
     s += '  instructions:\n'
-    s += '  solution:\n\n'
+    s += '  solution:\n'
+    s += '  difficulty:\n\n'
   fp = open(fenfile,'w')
   fp.write(s)
   fp.close()
@@ -246,63 +250,92 @@ anki_collection_path = os.path.join(anki_home, "collection.anki2")
 assert os.path.exists(anki_collection_path)
 col = Collection(anki_collection_path, log=True)
 
-# Set up the deck model
-modelBasic = col.models.by_name('Basic')
-col.decks.add_normal_deck_with_name(deckname)
-deck = col.decks.by_name(deckname)
-deck_id = deck['id']
-col.decks.select(deck_id)
-col.decks.current()['mid'] = modelBasic['id']
-
-# Make one pass through the existing cards in the deck to avoid creaing
-# duplicates. This is useful when making cards before all position have been
-# transcribed and solved.
-card_ids = col.decks.cids(deck_id)
-card_set = set()
-for cid in card_ids:
-  fields = col.get_card(cid).note().fields
-  cardstr = ''.join(fields)
-  card_set.add(cardstr)
-
-colors = color_choice()
+# Run through cards in yaml file and separate easy/hard puzzles
 puzzle_dict = yaml.safe_load(open(fenfile,'r'))
-num_puzzles = len([key for key,val in puzzle_dict.items() if val['fen'] is not None])
-print('Looking at {} cards ... '.format(num_puzzles),end='')
-cnt = 0
-for card in puzzle_dict.values():
-  fen   = card.get('fen')
-  instr = card.get('instructions')
-  desc  = card.get('description','')
-  soln  = card.get('solution')
-  if fen is None or soln is None:
-    continue
+puzzles = {}
+num_puzzles = 0
+for val in puzzle_dict.values():
+  if val.get('fen') is None: continue
+  if val.get('solution') is None: continue
+  diff = val.get('difficulty')
+  if diff is None:
+    diff = 'easy'
+  else:
+    diff = diff.lower()
+  if diff not in ['easy','hard']:
+    raise ValueError('Expected difficulty to be easy/hard, got {}'.format(diff))
+  num_puzzles += 1
+  if diff in puzzles:
+    D = puzzles[diff]
+  if diff not in puzzles:
+    puzzles[diff] = D = {}
+    if diff == 'easy':
+      D['deckname'] = deckname
+    else:
+      D['deckname'] = 'Hard: ' + deckname
+    D['puzzles'] = []
+  D['puzzles'].append(val)
+print('Looking at {} puzzles ...'.format(num_puzzles))  
 
-  if instr is None:
-    to_move = 'White' if chess.Board(fen).turn else 'Black'
-    instr = to_move + ' to move'
+for puzztype, D in puzzles.items():
+  deckname = D.get('deckname')
+  puzzles = D.get('puzzles')
+  
+  # Set up the deck model
+  modelBasic = col.models.by_name('Basic')
+  col.decks.add_normal_deck_with_name(deckname)
+  deck = col.decks.by_name(deckname)
+  deck_id = deck.get('id')
+  col.decks.select(deck_id)
+  col.decks.current()['mid'] = modelBasic['id']
+
+  # Make one pass through the existing cards in the deck to avoid creaing
+  # duplicates. This is useful when making cards before all position have been
+  # transcribed and solved.
+  card_ids = col.decks.cids(deck_id)
+  card_set = set()
+  for cid in card_ids:
+    fields = col.get_card(cid).note().fields
+    cardstr = ''.join(fields)
+    card_set.add(cardstr)
+
+  colors = color_choice()
+  cnt = 0
+  for card in puzzles:
+    fen   = card.get('fen')
+    instr = card.get('instructions')
+    desc  = card.get('description','')
+    soln  = card.get('solution')
+    assert fen is not None  # Already filtered for this
+    assert soln is not None # Already filtered for this
     
-  pos = fen_to_svg_str(fen,numpixels,colors=next(colors))
+    if instr is None:
+      to_move = 'White' if chess.Board(fen).turn else 'Black'
+      instr = to_move + ' to move'
 
-  front = pos + r'<br><hr3><i>' + instr + r'</i></hr3>'
+    pos = fen_to_svg_str(fen,numpixels,colors=next(colors))
 
+    front = pos + r'<br><hr3><i>' + instr + r'</i></hr3>'
 
-  soln = convert_ordered_list_to_html(soln)
-  back = r'<b>' + soln + r'</b>'
-  if desc is not None:
-    back += r'<hr>' + desc
-    
-  if front + back in card_set:
-    # We have already created this card!
-    continue
+    soln = convert_ordered_list_to_html(soln) # parse HTML lists
+    back = r'<b>' + soln + r'</b>'
+    if desc is not None:
+      back += r'<hr>' + desc
 
-  # Create a new card: custom format done already in Anki
-  note = col.newNote()
-  note.fields[0] = front
-  note.fields[1] = back
-  note.tags = [''.join(desc.split())] # String without spaces as tag
-  col.add_note(note, deck_id)
-  cnt += 1
+    if front + back in card_set:
+      # We have already created this card!
+      continue
 
-print('created {} cards!'.format(cnt))
-col.save()  
+    # Create a new card: custom format done already in Anki
+    note = col.newNote()
+    note.fields[0] = front
+    note.fields[1] = back
+    note.tags = [''.join(desc.split())] # String without spaces as tag
+    col.add_note(note, deck_id)
+    cnt += 1
+
+  s = '' if cnt == 1 else 's'
+  print('  created {} {} card{}!'.format(cnt,puzztype,s))
+  col.save()
+  
 sys.exit(0)  

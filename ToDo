@@ -1,8 +1,8 @@
 -*-org-*-
 
-* TODO Difficulty
-** TODO Have cards.py parse a difficulty field and create separate decks of easy/hard cards (not case sensitive)
-** TODO Add "difficulty" field to the template creator
-** TODO Add a "difficulty" field to the existing yaml files
 * TODO Is there an attribute to organize decks together? This seemed possible when I looked at shared decks.
+* DONE Difficulty
+** DONE Have cards.py parse a difficulty field and create separate decks of easy/hard cards (not case sensitive)
+** DONE Add "difficulty" field to the template creator
+** DONE Add a "difficulty" field to the existing yaml files
 * DONE HTML for lists when I have multiple variations like (A), (B), (C), etc.?
