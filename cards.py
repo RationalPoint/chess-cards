@@ -232,7 +232,8 @@ if args.template > 0:
     s += '  fen:\n'
     s += '  instructions:\n'
     s += '  solution:\n'
-    s += '  difficulty:\n\n'
+    s += '  difficulty:\n'
+    s += '  tag:\n\n'
   fp = open(fenfile,'w')
   fp.write(s)
   fp.close()
@@ -250,7 +251,7 @@ anki_collection_path = os.path.join(anki_home, "collection.anki2")
 assert os.path.exists(anki_collection_path)
 col = Collection(anki_collection_path, log=True)
 
-# Run through cards in yaml file and separate easy/hard puzzles
+# Run through cards in yaml file 
 puzzle_dict = yaml.safe_load(open(fenfile,'r'))
 puzzles = {}
 num_puzzles = 0
@@ -311,6 +312,7 @@ for puzztype, D in puzzles.items():
     instr = card.get('instructions')
     desc  = card.get('description','')
     soln  = card.get('solution')
+    tag   = card.get('tag','')
     assert fen is not None  # Already filtered for this
     assert soln is not None # Already filtered for this
     
@@ -335,7 +337,7 @@ for puzztype, D in puzzles.items():
     note = col.newNote()
     note.fields[0] = front
     note.fields[1] = back
-    note.tags = [''.join(desc.split())] # String without spaces as tag
+    note.tags = tag.split()
     col.add_note(note, deck_id)
     cnt += 1
 
