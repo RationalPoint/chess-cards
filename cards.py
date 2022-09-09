@@ -251,9 +251,10 @@ anki_collection_path = os.path.join(anki_home, "collection.anki2")
 assert os.path.exists(anki_collection_path)
 col = Collection(anki_collection_path, log=True)
 
-# Run through cards in yaml file 
+# Run through cards in yaml file and create puzzles dict:
+#   keys are 'easy' and 'hard', values are dicts with keys {deckname, puzzles}
 puzzle_dict = yaml.safe_load(open(fenfile,'r'))
-puzzles = {}
+allpuzzles = {} 
 num_puzzles = 0
 for val in puzzle_dict.values():
   fen = val.get('fen')
@@ -271,10 +272,10 @@ for val in puzzle_dict.values():
   if diff not in ['easy','hard']:
     raise ValueError('Expected difficulty to be easy/hard, got {}'.format(diff))
   num_puzzles += 1
-  if diff in puzzles:
-    D = puzzles[diff]
-  if diff not in puzzles:
-    puzzles[diff] = D = {}
+  if diff in allpuzzles:
+    D = allpuzzles[diff]
+  else:
+    allpuzzles[diff] = D = {}
     if diff == 'easy':
       D['deckname'] = deckname
     else:
@@ -283,7 +284,7 @@ for val in puzzle_dict.values():
   D['puzzles'].append(val)
 print('Looking at {} puzzles ...'.format(num_puzzles))  
 
-for puzztype, D in puzzles.items():
+for puzztype, D in allpuzzles.items():
   deckname = D.get('deckname')
   puzzles = D.get('puzzles')
   
