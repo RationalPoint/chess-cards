@@ -148,7 +148,7 @@ color_schemes['purple'] = ('eeeed2','c0a2c7')
 
 # Parse arguments
 
-msg = "Script for converting chess fen's and text into Anki flash cards"
+msg = "Script for converting chess fens and text into Anki flash cards"
 parser = argparse.ArgumentParser(description=msg)
 
 kwargs = {}
@@ -256,15 +256,20 @@ col = Collection(anki_collection_path, log=True)
 puzzle_dict = yaml.safe_load(open(fenfile,'r'))
 allpuzzles = {} 
 num_puzzles = 0
-for val in puzzle_dict.values():
+# print('Found {} raw cards'.format(len(puzzle_dict)))
+for key,val in puzzle_dict.items():
   fen = val.get('fen')
   soln = val.get('solution')
   desc = val.get('description')
   diff = val.get('difficulty')
   if soln is not None and fen is None:
     raise ValueError('Solution with no fen: {}'.format(desc))
-  if fen is None: continue
-  if soln is None: continue
+  if fen is None:
+    # print('fen',key)
+    continue
+  if soln is None:
+    # print('solution',key)
+    continue
   if diff is None:
     diff = 'easy'
   else:
@@ -297,7 +302,7 @@ for puzztype, D in allpuzzles.items():
   col.decks.current()['mid'] = modelBasic['id']
 
   # Make one pass through the existing cards in the deck to avoid creaing
-  # duplicates. This is useful when making cards before all position have been
+  # duplicates. This is useful when making cards before all positions have been
   # transcribed and solved.
   card_ids = col.decks.cids(deck_id)
   card_set = set()
