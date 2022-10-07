@@ -208,8 +208,8 @@ for puzztype, D in allpuzzles.items():
   for cid in card_ids:
     fields = col.get_card(cid).note().fields
     assert len(fields) == 2
-    cardstr = ''.join(fields)
-    card_set.add(cardstr)
+    cardfields = tuple(fields)
+    card_set.add(cardfields)
 
   colors = color_choice()
   cnt = 0
@@ -235,7 +235,7 @@ for puzztype, D in allpuzzles.items():
     if desc is not None:
       back += r'<hr>' + desc
 
-    if front + back in card_set:
+    if (front,back) in card_set:
       # We have already created this card!
       continue
 

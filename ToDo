@@ -1,7 +1,7 @@
 -*-org-*-
 
-* TODO Fix bug that allows recreation of existing cards.
 * TODO Is there an attribute to organize decks together? This seemed possible when I looked at shared decks.
+* DONE Fix bug that allows recreation of existing cards.
 * DONE Add tag field, for grabbing subsets of a deck
 * DONE Difficulty
 ** DONE Have cards.py parse a difficulty field and create separate decks of easy/hard cards (not case sensitive)
