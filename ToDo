@@ -1,5 +1,6 @@
 -*-org-*-
 
+* TODO Fix bug that allows recreation of existing cards.
 * TODO Is there an attribute to organize decks together? This seemed possible when I looked at shared decks.
 * DONE Add tag field, for grabbing subsets of a deck
 * DONE Difficulty

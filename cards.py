@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-r"""Script to make flash cards out of a collection of fens and strings describing
+"""Script to make flash cards out of a collection of fens and strings describing
 solutions to the problems.
 
 The file that holds the position data should be a yaml file corresponding to a
@@ -32,117 +32,15 @@ across devices).
 
 import argparse
 import os
-import re
 import subprocess
 import sys
 import yaml
 
 
 from anki.storage import Collection 
-import chess, chess.svg
+import card_utils
+import chess
 
-
-################################################################################
-#################################  UTILITIES  ##################################
-################################################################################
-
-def fen_to_svg_str(fen, numpixels=None, coordinates=False, colors=None):
-  r"""
-  Convert a fen into an svg string
-
-  INPUT:
-
-  - ``fen`` -- a well-formed fen string
-
-  - ``numpixels`` -- optional number of pixels for the height/width of the board
-
-  - ``coordinates`` -- bools (default: False); whether to print coordinates
-    around the board
-
-  - ``colors`` -- optional pair of HTML color strings to determine the light and
-    dark color squares on the board (default: ('ffce9e','d18b47'))
-
-  OUTPUT:
-
-  - A string representation of the svg needed to reproduce this board in a web browser
-
-  """
-  b = chess.Board(fen)
-  s = chess.svg.board(b,coordinates=coordinates)
-  if numpixels is not None:
-    if s[:5] != '<svg ':
-      raise RuntimeError('Unable to set number of pixels for this svg')
-    tmp = '<svg '
-    tmp += 'width="{}" height="{}" '.format(numpixels,numpixels)
-    tmp += s[5:]
-    s = tmp
-
-  if colors is None:
-    return s
-
-  light,dark = colors
-  s = s.replace('ffce9e',light)
-  s = s.replace('d18b47',dark)
-  return s
-
-def write_fen_to_svg(fen, fileprefix, numpixels=None, coordinates=False, colors=None):
-  s = fen_to_svg_str(fen,numpixels,coordinates,colors=colors)
-  fp = open(fileprefix+'.svg','w')
-  fp.write(s)
-  fp.close()
-
-def write_fen_to_png(fen, fileprefix, numpixels=None, coordinates=False, colors=None):
-  write_fen_to_svg(fen,fileprefix,coordinates=coordinates,colors=colors)
-  cmd = ['qlmanage','-t','-s',str(numpixels),'-o','.',fileprefix+'.svg']
-  subprocess.run(cmd,stderr=subprocess.DEVNULL,stdout=subprocess.DEVNULL)
-  cmd = ['rm', fileprefix + '.svg']
-  subprocess.run(cmd)
-  return
-
-def convert_ordered_list_to_html(string):
-  r"""
-  Parse a string with "(A) ... (B) ... etc." and write in html format
-
-  NOTE:
-
-  - We assume that if there is an ordered list, it is indexed by
-    single-character identifiers like A, B, C, etc. Also, if there
-    are fewer than 2 list items, no changes are made. 
-
-  """
-  matches = re.findall('\((\w)\)',string) # Grab letters A,B,C in parens
-  if len(matches) < 2:
-    return string
-  if matches[0] != 'A':
-    raise RuntimeError('Expected (A) for first list item, got {}'.format(matches[0]))
-  
-  new_string = ''
-  numitems = len(matches)
-  for i,c in enumerate(matches):
-    tmp = string.split('({})'.format(c))
-    if len(tmp) != 2:
-      msg = 'Unable to split the following string at ({}):\n  {}'
-      raise RuntimeError(msg.format(c,string))
-    new_string += tmp[0]
-    string = tmp[1]
-    if i == 0:
-      new_string += '<ol type="A"><li>'
-    elif i < numitems-1:
-      new_string += '</li><li>'
-    else:
-      new_string += '</li><li>' + tmp[1] + '</li></ol>'
-  return new_string
-
-################################################################################
-
-# Color schemes
-color_schemes = {}
-color_schemes['blue']   = ('eeeed2','6188b5')
-color_schemes['brown']  = ('f0d9b5','b58863')
-color_schemes['gray']   = ('c8c8c8','939393')
-color_schemes['green']  = ('eeeed2','769656')
-color_schemes['pink']   = ('eeeed2','f27372')
-color_schemes['purple'] = ('eeeed2','c0a2c7')
 
 ################################################################################
 
@@ -199,6 +97,7 @@ if deckname is None:
 decknames = [deckname] # If appropriate, add deckname for hard puzzles later
 
 colorchoice = args.colorscheme
+color_schemes = card_utils.color_schemes
 if colorchoice == 'all':
   scriptcolors = list(color_schemes.values())
 else:
@@ -273,7 +172,7 @@ for key,val in puzzle_dict.items():
   if diff is None:
     diff = 'easy'
   else:
-    diff = diff.lower()
+    diff = diff.strip().lower()
   if diff not in ['easy','hard']:
     raise ValueError('Expected difficulty to be easy/hard, got {}'.format(diff))
   num_puzzles += 1
@@ -308,6 +207,7 @@ for puzztype, D in allpuzzles.items():
   card_set = set()
   for cid in card_ids:
     fields = col.get_card(cid).note().fields
+    assert len(fields) == 2
     cardstr = ''.join(fields)
     card_set.add(cardstr)
 
@@ -326,11 +226,11 @@ for puzztype, D in allpuzzles.items():
       to_move = 'White' if chess.Board(fen).turn else 'Black'
       instr = to_move + ' to move'
 
-    pos = fen_to_svg_str(fen,numpixels,colors=next(colors))
+    pos = card_utils.fen_to_svg_str(fen,numpixels,colors=next(colors))
 
     front = pos + r'<br><hr3><i>' + instr + r'</i></hr3>'
 
-    soln = convert_ordered_list_to_html(soln) # parse HTML lists
+    soln = card_utils.convert_ordered_list_to_html(soln) # parse HTML lists
     back = r'<b>' + soln + r'</b>'
     if desc is not None:
       back += r'<hr>' + desc
