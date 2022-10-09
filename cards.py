@@ -155,14 +155,16 @@ col = Collection(anki_collection_path, log=True)
 puzzle_dict = yaml.safe_load(open(fenfile,'r'))
 allpuzzles = {} 
 num_puzzles = 0
-# print('Found {} raw cards'.format(len(puzzle_dict)))
+print('Scanning {} puzzle stubs'.format(len(puzzle_dict)))
+sol_with_no_fen = 0
 for key,val in puzzle_dict.items():
   fen = val.get('fen')
   soln = val.get('solution')
   desc = val.get('description')
   diff = val.get('difficulty')
   if soln is not None and fen is None:
-    raise ValueError('Solution with no fen: {}'.format(desc))
+    sol_with_no_fen += 1
+    continue
   if fen is None:
     # print('fen',key)
     continue
@@ -186,7 +188,9 @@ for key,val in puzzle_dict.items():
       D['deckname'] = 'Hard: ' + deckname
     D['puzzles'] = []
   D['puzzles'].append(val)
-print('Looking at {} puzzles ...'.format(num_puzzles))  
+if sol_with_no_fen > 0:
+  print('  ==> {} puzzle stubs with a solution and no fen'.format(sol_with_no_fen))
+print('  ==> {} complete puzzles'.format(num_puzzles))  
 
 for puzztype, D in allpuzzles.items():
   deckname = D.get('deckname')
@@ -248,7 +252,7 @@ for puzztype, D in allpuzzles.items():
     cnt += 1
 
   s = '' if cnt == 1 else 's'
-  print('  created {} {} card{}!'.format(cnt,puzztype,s))
+  print('  ==> created {} {} card{}'.format(cnt,puzztype,s))
   col.save()
   
 sys.exit(0)  
