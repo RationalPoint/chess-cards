@@ -47,6 +47,14 @@ def write_fen_to_svg(fen, fileprefix, numpixels=None, coordinates=False, colors=
   fp.write(s)
   fp.close()
 
+def svg_str_to_board_state(string):
+  """Grab the board state from an svg string"""
+  L = string.split('pre')
+  msg = 'Expected to find "pre" twice in string, got {}'
+  if len(L) != 3:
+    raise RuntimeError(msg.format(len(L)-1))
+  return L[1][1:-2]
+
 def write_fen_to_png(fen, fileprefix, numpixels=None, coordinates=False, colors=None):
   write_fen_to_svg(fen,fileprefix,coordinates=coordinates,colors=colors)
   cmd = ['qlmanage','-t','-s',str(numpixels),'-o','.',fileprefix+'.svg']

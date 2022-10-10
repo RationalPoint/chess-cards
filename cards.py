@@ -27,6 +27,10 @@ decks in a sandboxed environment /Library/Anki. Once that's working, I export
 the deck and then import it to my main Anki environment (the one that's sync'd
 across devices).
 
+Note: There is a weird bug in chess.svg.board that sometimes renders the svg
+string with <path .../></path> and sometimes renders it with <path .../>. This
+disrupts the ability to determine when two puzzles are the same, so I strip out
+the board state rather than compare the whole string.
 
 """
 
@@ -212,7 +216,9 @@ for puzztype, D in allpuzzles.items():
   for cid in card_ids:
     fields = col.get_card(cid).note().fields
     assert len(fields) == 2
-    cardfields = tuple(fields)
+    front, back = fields
+    board_state = card_utils.svg_str_to_board_state(front)
+    cardfields = (board_state,back)
     card_set.add(cardfields)
 
   colors = color_choice()
@@ -239,7 +245,8 @@ for puzztype, D in allpuzzles.items():
     if desc is not None:
       back += r'<hr>' + desc
 
-    if (front,back) in card_set:
+    board_state = card_utils.svg_str_to_board_state(pos)
+    if (board_state,back) in card_set:
       # We have already created this card!
       continue
 
