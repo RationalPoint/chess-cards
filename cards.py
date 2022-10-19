@@ -160,19 +160,21 @@ puzzle_dict = yaml.safe_load(open(fenfile,'r'))
 allpuzzles = {} 
 num_puzzles = 0
 print('Scanning {} puzzle stubs'.format(len(puzzle_dict)))
-sol_with_no_fen = 0
+soln_with_no_fen = 0
+fen_with_no_soln = 0
 for key,val in puzzle_dict.items():
   fen = val.get('fen')
   soln = val.get('solution')
   desc = val.get('description')
   diff = val.get('difficulty')
   if soln is not None and fen is None:
-    sol_with_no_fen += 1
+    soln_with_no_fen += 1
     continue
-  if fen is None:
+  if fen is not None and soln is None:
+    fen_with_no_soln += 1
+    continue
+  if fen is None or soln is None:
     # print('fen',key)
-    continue
-  if soln is None:
     # print('solution',key)
     continue
   if diff is None:
@@ -192,8 +194,11 @@ for key,val in puzzle_dict.items():
       D['deckname'] = 'Hard: ' + deckname
     D['puzzles'] = []
   D['puzzles'].append(val)
-if sol_with_no_fen > 0:
-  print('  ==> {} puzzle stubs with a solution and no fen'.format(sol_with_no_fen))
+if soln_with_no_fen > 0:
+  print('  ==> {} puzzle stubs with a solution and no fen'.format(soln_with_no_fen))
+if fen_with_no_soln > 0:
+  print('  ==> {} puzzle stubs with a fen and no solution'.format(fen_with_no_soln))
+
 print('  ==> {} complete puzzles'.format(num_puzzles))  
 
 for puzztype, D in allpuzzles.items():
