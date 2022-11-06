@@ -167,6 +167,7 @@ for key,val in puzzle_dict.items():
   soln = val.get('solution')
   desc = val.get('description')
   diff = val.get('difficulty')
+  tag = val.get('tag')
   if soln is not None and fen is None:
     soln_with_no_fen += 1
     continue
@@ -176,6 +177,9 @@ for key,val in puzzle_dict.items():
   if fen is None or soln is None:
     # print('fen',key)
     # print('solution',key)
+    continue
+  if tag is None:
+    print('WARNING: No tag for {}'.format(desc))
     continue
   if diff is None:
     diff = 'easy'
@@ -231,9 +235,9 @@ for puzztype, D in allpuzzles.items():
   for card in puzzles:
     fen   = card.get('fen')
     instr = card.get('instructions')
-    desc  = card.get('description','')
+    desc  = card.get('description')
     soln  = card.get('solution')
-    tag   = card.get('tag','')
+    tag   = card.get('tag')
     assert fen is not None  # Already filtered for this
     assert soln is not None # Already filtered for this
     
