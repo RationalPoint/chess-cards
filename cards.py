@@ -32,6 +32,12 @@ string with <path .../></path> and sometimes renders it with <path .../>. This
 disrupts the ability to determine when two puzzles are the same, so I strip out
 the board state rather than compare the whole string.
 
+Note: There is another odd behavior I found where Anki stores the raw html when
+I access it through python, but it converts the raw html into unicode when I
+open the gui. This presented by creating duplicate cards if the card info
+contained an html accent like '&eacute;'. Now I strip the accents when
+comparing the existing cards with potential new cards.
+
 """
 
 import argparse
@@ -227,7 +233,8 @@ for puzztype, D in allpuzzles.items():
     assert len(fields) == 2
     front, back = fields
     board_state = card_utils.svg_str_to_board_state(front)
-    cardfields = (board_state,back)
+    clean_back = card_utils.strip_accents(back) # avoid unicode/html accent conversion
+    cardfields = (board_state,clean_back)
     card_set.add(cardfields)
 
   colors = color_choice()
@@ -255,7 +262,8 @@ for puzztype, D in allpuzzles.items():
       back += r'<hr>' + desc
 
     board_state = card_utils.svg_str_to_board_state(pos)
-    if (board_state,back) in card_set:
+    clean_back = card_utils.strip_accents(back) # avoid unicode/html accent conversion
+    if (board_state,clean_back) in card_set:
       # We have already created this card!
       continue
 

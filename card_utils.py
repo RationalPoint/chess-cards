@@ -1,6 +1,22 @@
 
+"""
+
+TABLE OF CONTENTS
+
+- fen_to_svg_str
+- write_fen_to_svg
+- svg_str_to_board_state
+- write_fen_to_png
+- convert_ordered_list_to_html
+- strip_accents
+
+- color_schemes (dict)
+
+"""
+
 import chess, chess.svg
 import re
+import unidecode # nonstandard ... must be pip installed
 
 def fen_to_svg_str(fen, numpixels=None, coordinates=False, colors=None):
   r"""
@@ -96,6 +112,15 @@ def convert_ordered_list_to_html(string):
     else:
       new_string += '</li><li>' + tmp[1] + '</li></ol>'
   return new_string
+
+def strip_accents(string):
+  """Strip all html/unicode accents from a string (to allow direct comparison)"""
+  s = unidecode.unidecode(string) # Strip unicode characters
+  html_accents = re.findall('&.+?;',s)
+  for accent in html_accents:
+    c = accent[1] # Example: &eacute; -> e
+    s = s.replace(accent,c)
+  return s
 
 ################################################################################
 
