@@ -42,6 +42,7 @@ comparing the existing cards with potential new cards.
 
 import argparse
 import os
+import re
 import subprocess
 import sys
 import yaml
@@ -65,9 +66,21 @@ kwargs['help'] = 'File containing fens and text'
 parser.add_argument('fen_file',**kwargs)
 
 kwargs = {}
+kwargs['type'] = str
+kwargs['help'] = 'Name of color scheme to use'
+kwargs['choices'] = ['blue','brown','gray','green','pink','purple','all']
+kwargs['default'] = 'all'
+parser.add_argument('-c','--colorscheme',**kwargs)
+
+kwargs = {}
+kwargs['type'] = str
+kwargs['help'] = 'Name of deck to use when writing cards (default: prefix of fen_file)'
+parser.add_argument('-d','--deckname',**kwargs)
+
+kwargs = {}
 kwargs['action'] = 'store_true'
-kwargs['help'] = 'Write to the real Anki collection, not the sandbox.'
-parser.add_argument('-r','--realthing',**kwargs)
+kwargs['help'] = 'Check if all cards have a tag.'
+parser.add_argument('-g','--tagcheck',**kwargs)
 
 kwargs = {}
 kwargs['type'] = int
@@ -76,16 +89,9 @@ kwargs['default'] = 380 # Fits well on phone/tablet/computer
 parser.add_argument('-n','--numpixels',**kwargs)
 
 kwargs = {}
-kwargs['type'] = str
-kwargs['help'] = 'Name of deck to use when writing cards (default: prefix of fen_file)'
-parser.add_argument('-d','--deckname',**kwargs)
-
-kwargs = {}
-kwargs['type'] = str
-kwargs['help'] = 'Name of color scheme to use'
-kwargs['choices'] = ['blue','brown','gray','green','pink','purple','all']
-kwargs['default'] = 'all'
-parser.add_argument('-c','--colorscheme',**kwargs)
+kwargs['action'] = 'store_true'
+kwargs['help'] = 'Write to the real Anki collection, not the sandbox.'
+parser.add_argument('-r','--realthing',**kwargs)
 
 kwargs = {}
 kwargs['type'] = int
@@ -184,7 +190,22 @@ for key,val in puzzle_dict.items():
     # print('fen',key)
     # print('solution',key)
     continue
-  if tag is None:
+  
+  # Check for White/Black to move consistency with solution
+  match = re.search('\d\.+',soln)
+  if match is None:
+    print('WARNING: No valid move in solution to {}'.format(desc))
+    continue
+  num_dots = match.group().count('.')
+  if num_dots not in [1,3]:
+    print('WARNING: No valid move in solution to {}'.format(desc))
+    continue
+  to_move = 'White' if num_dots == 1 else 'Black'
+  fen_to_move = 'White' if fen.split(' ')[1] == 'w' else 'Black'
+  if to_move != fen_to_move:
+    print('WARNING: White/Black to move disagreement in {}'.format(desc))
+    continue
+  if tag is None and args.tagcheck:
     print('WARNING: No tag for {}'.format(desc))
     continue
   if diff is None:
@@ -271,7 +292,8 @@ for puzztype, D in allpuzzles.items():
     note = col.newNote()
     note.fields[0] = front
     note.fields[1] = back
-    note.tags = tag.split()
+    if tag is not None:
+      note.tags = tag.split()
     col.add_note(note, deck_id)
     cnt += 1
 
