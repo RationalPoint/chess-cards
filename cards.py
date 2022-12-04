@@ -13,6 +13,10 @@ dictionary whose keys are cards (named whatever, the card names aren't used), an
                   "White/Black to move" will be used)
   'solution': The solution to the puzzle (required)
   'difficulty': easy/hard (optional; if not given, "easy" is assumed)
+  'tag': an optional collection of words for creating special puzzle collections
+  'movecheck': True/False, whether to check for agreement between the fen and the 
+               solution for White/Black to move (optional; True is assumed if not 
+               given)
 
 Top color choices (light/black squares):
   chess.com colors: eeeed2/769656
@@ -83,11 +87,6 @@ kwargs['help'] = 'Check if all cards have a tag.'
 parser.add_argument('-g','--tagcheck',**kwargs)
 
 kwargs = {}
-kwargs['action'] = 'store_true'
-kwargs['help'] = 'Check if White/Black to move in fen matches solution (sometimes generates false positives)'
-parser.add_argument('-m','--movecheck',**kwargs)
-
-kwargs = {}
 kwargs['type'] = int
 kwargs['help'] = 'Number of pixels for height/width of boards'
 kwargs['default'] = 380 # Fits well on phone/tablet/computer
@@ -153,7 +152,8 @@ if args.template > 0:
     s += '  instructions:\n'
     s += '  solution:\n'
     s += '  difficulty:\n'
-    s += '  tag:\n\n'
+    s += '  tag:\n'
+    s += '  movecheck:\n\n'
   fp = open(fenfile,'w')
   fp.write(s)
   fp.close()
@@ -185,6 +185,9 @@ for key,val in puzzle_dict.items():
   desc = val.get('description')
   diff = val.get('difficulty')
   tag = val.get('tag')
+  movecheck = val.get('movecheck',True)
+  if movecheck is not None:
+    movecheck = bool(movecheck)
   if soln is not None and fen is None:
     soln_with_no_fen += 1
     continue
@@ -195,7 +198,7 @@ for key,val in puzzle_dict.items():
     # print('fen',key)
     # print('solution',key)
     continue
-  if args.movecheck:
+  if movecheck:
     # Check for White/Black to move consistency with solution    
     match = re.search('\d\.+',soln)
     if match is None:
