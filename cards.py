@@ -185,9 +185,12 @@ for key,val in puzzle_dict.items():
   desc = val.get('description')
   diff = val.get('difficulty')
   tag = val.get('tag')
-  movecheck = val.get('movecheck',True)
+  movecheck = val.get('movecheck')
+  # print(fen,soln,desc,diff,tag,movecheck)
   if movecheck is not None:
     movecheck = bool(movecheck)
+  else:
+    movecheck = True
   if soln is not None and fen is None:
     soln_with_no_fen += 1
     continue
