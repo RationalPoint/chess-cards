@@ -87,6 +87,11 @@ kwargs['help'] = 'Check if all cards have a tag.'
 parser.add_argument('-g','--tagcheck',**kwargs)
 
 kwargs = {}
+kwargs['action'] = 'store_true'
+kwargs['help'] = 'Print descriptions of cards without a fen or solution.'
+parser.add_argument('-i','--incomplete',**kwargs)
+
+kwargs = {}
 kwargs['type'] = int
 kwargs['help'] = 'Number of pixels for height/width of boards'
 kwargs['default'] = 380 # Fits well on phone/tablet/computer
@@ -177,8 +182,8 @@ puzzle_dict = yaml.safe_load(open(fenfile,'r'))
 allpuzzles = {} 
 num_puzzles = 0
 print('Scanning {} puzzle stubs'.format(len(puzzle_dict)))
-soln_with_no_fen = 0
-fen_with_no_soln = 0
+soln_with_no_fen = []
+fen_with_no_soln = []
 for key,val in puzzle_dict.items():
   fen = val.get('fen')
   soln = val.get('solution')
@@ -192,10 +197,10 @@ for key,val in puzzle_dict.items():
   else:
     movecheck = True
   if soln is not None and fen is None:
-    soln_with_no_fen += 1
+    soln_with_no_fen.append(desc)
     continue
   if fen is not None and soln is None:
-    fen_with_no_soln += 1
+    fen_with_no_soln.append(desc)
     continue
   if fen is None or soln is None:
     # print('fen',key)
@@ -236,10 +241,16 @@ for key,val in puzzle_dict.items():
       D['deckname'] = 'Hard: ' + deckname
     D['puzzles'] = []
   D['puzzles'].append(val)
-if soln_with_no_fen > 0:
-  print('  ==> {} puzzle stubs with a solution and no fen'.format(soln_with_no_fen))
-if fen_with_no_soln > 0:
-  print('  ==> {} puzzle stubs with a fen and no solution'.format(fen_with_no_soln))
+if len(soln_with_no_fen) > 0:
+  print('  ==> {} puzzle stubs with a solution and no fen'.format(len(soln_with_no_fen)))
+  if args.incomplete:
+    for desc in soln_with_no_fen:
+      print('      * {}'.format(desc))
+if len(fen_with_no_soln) > 0:
+  print('  ==> {} puzzle stubs with a fen and no solution'.format(len(fen_with_no_soln)))
+  if args.incomplete:
+    for desc in fen_with_no_soln:
+      print('      * {}'.format(desc))
 
 print('  ==> {} complete puzzles'.format(num_puzzles))  
 
