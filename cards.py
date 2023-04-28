@@ -129,12 +129,10 @@ else:
   assert colorchoice in color_schemes
   scriptcolors = [color_schemes[colorchoice]]
   
-def color_choice():
-  i = 0
+def color_choice(fen):
   n = len(scriptcolors)
-  while True:
-    yield scriptcolors[i%n]
-    i += 1
+  idx = hash(fen) % n
+  return scriptcolors[idx]
 
 home = os.getenv('HOME')
 if args.realthing:
@@ -280,7 +278,6 @@ for puzztype, D in allpuzzles.items():
     cardfields = (board_state,clean_back)
     card_set.add(cardfields)
 
-  colors = color_choice()
   cnt = 0
   for card in puzzles:
     fen   = card.get('fen')
@@ -295,7 +292,7 @@ for puzztype, D in allpuzzles.items():
       to_move = 'White' if chess.Board(fen).turn else 'Black'
       instr = to_move + ' to move'
 
-    pos = card_utils.fen_to_svg_str(fen,numpixels,colors=next(colors))
+    pos = card_utils.fen_to_svg_str(fen,numpixels,colors=color_choice(fen))
 
     front = pos + r'<br><hr3><i>' + instr + r'</i></hr3>'
 
