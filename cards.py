@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#!/usr/local/bin/python3
 
 """Script to make flash cards out of a collection of fens and strings describing
 solutions to the problems.
@@ -172,7 +172,7 @@ if not os.path.exists(fenfile):
 # Find/Load the Anki directory 
 anki_collection_path = os.path.join(anki_home, "collection.anki2")
 assert os.path.exists(anki_collection_path)
-col = Collection(anki_collection_path, log=True)
+col = Collection(anki_collection_path)
 
 # Run through cards in yaml file and create puzzles dict:
 #   keys are 'easy' and 'hard', values are dicts with keys {deckname, puzzles}
@@ -264,7 +264,7 @@ for puzztype, D in allpuzzles.items():
   col.decks.select(deck_id)
   col.decks.current()['mid'] = modelBasic['id']
 
-  # Make one pass through the existing cards in the deck to avoid creaing
+  # Make one pass through the existing cards in the deck to avoid creating
   # duplicates. This is useful when making cards before all positions have been
   # transcribed and solved.
   card_ids = col.decks.cids(deck_id)
