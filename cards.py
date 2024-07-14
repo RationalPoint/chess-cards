@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!/Users/xander/Dropbox/Chess/cards/env/bin/python3
 
 """Script to make flash cards out of a collection of fens and strings describing
 solutions to the problems.
@@ -206,7 +206,7 @@ for key,val in puzzle_dict.items():
     continue
   if movecheck:
     # Check for White/Black to move consistency with solution    
-    match = re.search('\d\.+',soln)
+    match = re.search(r'\d\.+',soln)
     if match is None:
       print('WARNING: No valid move in solution to {}'.format(desc))
       continue
@@ -318,6 +318,6 @@ for puzztype, D in allpuzzles.items():
 
   s = '' if cnt == 1 else 's'
   print('  ==> created {} {} card{}'.format(cnt,puzztype,s))
-  col.save()
+  # col.save()
   
 sys.exit(0)  

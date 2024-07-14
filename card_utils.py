@@ -90,7 +90,7 @@ def convert_ordered_list_to_html(string):
     are fewer than 2 list items, no changes are made. 
 
   """
-  matches = re.findall('\((\w)\)',string) # Grab letters A,B,C in parens
+  matches = re.findall(r'\((\w)\)',string) # Grab letters A,B,C in parens
   if len(matches) < 2:
     return string
   if matches[0] != 'A':
