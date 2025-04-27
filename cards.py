@@ -1,4 +1,4 @@
-#!/Users/xander/Dropbox/Chess/cards/env/bin/python3
+#!/Users/xander/Dropbox/Chess/cards/env/bin/python
 
 """Script to make flash cards out of a collection of fens and strings describing
 solutions to the problems.
@@ -168,6 +168,10 @@ if args.template > 0:
 if not os.path.exists(fenfile):
   print('File {} does not exist; no fens available'.format(fenfile))
   sys.exit(1)
+
+# To avoid database corruption, make sure anki app is closed
+print("Please ensure the Anki app is closed. I'll wait ...",end='')
+input()
 
 # Find/Load the Anki directory 
 anki_collection_path = os.path.join(anki_home, "collection.anki2")
