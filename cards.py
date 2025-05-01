@@ -210,7 +210,7 @@ for key,val in puzzle_dict.items():
     continue
   if movecheck:
     # Check for White/Black to move consistency with solution    
-    match = re.search(r'\d\.+',soln)
+    match = re.search(r'\d\s*\.+',soln)
     if match is None:
       print('WARNING: No valid move in solution to {}'.format(desc))
       continue
