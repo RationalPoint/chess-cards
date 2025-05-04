@@ -1,0 +1,26 @@
+card1:
+  description: "Richard Reti - Savielly Tartakower, Vienna 1910"
+  fen: rnb1kb1r/pp3ppp/2p5/4q3/4n3/3Q4/PPPB1PPP/2KR1BNR w kq - 0 9
+  instructions:
+  solution: 1.Qd8+! Kxd8 2.Bg5++ Kc7 (2...Ke8 3.Rd8#) 3.Bd8#
+  difficulty: easy
+  tag: 
+  movecheck:
+
+card2:
+  description: "Herbert Weil - Alexander Alekhine, Lublin/Warsaw/Krakow 1942"
+  fen: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+  instructions: "Herbert Weil - Alexander Alekhine, Lublin/Warsaw/Krakow 1942"
+  solution: "Zukertort,  quiet system; Qa3 invasion; pressure the uncastled king"
+  difficulty:
+  tag: game_ideas
+  movecheck: false
+
+card3:
+  description: "Herbert Weil - Alexander Alekhine, Lublin/Warsaw/Krakow 1942"
+  fen: r1b2r2/pp2ppkp/2n3p1/2q5/8/1P2PN2/P4PPP/2RQKB1R b K - 0 1
+  instructions: "Black to move; give the game and continuation"
+  solution: 12...Qa3 13.Rc2 Rd8 14.Rd2 Bg4 15.Be2 Rxd2 16.Nxd2 Bxe2 17.Qa1+ f6 18.Kxe2 Qa6+ 19.Nc4 b5 20.Nb2 b4+ 21.Ke1 Rc8 22.f3
+  difficulty: hard
+  tag: positions_to_know
+  movecheck:
