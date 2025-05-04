@@ -1,10 +1,11 @@
-#!/Users/xander/Dropbox/Chess/cards/env/bin/python
+#!./env/bin/python
 
 """Script to make flash cards out of a collection of fens and strings describing
 solutions to the problems.
 
 The file that holds the position data should be a yaml file corresponding to a
-dictionary whose keys are cards (named whatever, the card names aren't used), and whose values are dicts with the following key/value pairs:
+dictionary whose keys are cards (named whatever, the card names aren't used),
+and whose values are dicts with the following key/value pairs:
 
   'fen': a fen string for the position (required)
   'description': Description of the card, type of puzzle, 
@@ -65,6 +66,11 @@ msg = "Script for converting chess fens and text into Anki flash cards"
 parser = argparse.ArgumentParser(description=msg)
 
 kwargs = {}
+kwargs['type'] = str
+kwargs['help'] = 'Name of Anki profile'
+parser.add_argument('profile',**kwargs)
+
+kwargs = {}
 kwargs['type']=str
 kwargs['help'] = 'File containing fens and text'
 parser.add_argument('fen_file',**kwargs)
@@ -98,17 +104,14 @@ kwargs['default'] = 380 # Fits well on phone/tablet/computer
 parser.add_argument('-n','--numpixels',**kwargs)
 
 kwargs = {}
-kwargs['action'] = 'store_true'
-kwargs['help'] = 'Write to the real Anki collection, not the sandbox.'
-parser.add_argument('-r','--realthing',**kwargs)
-
-kwargs = {}
 kwargs['type'] = int
 kwargs['help'] = 'Make a template yaml file with this many cards and write to "fen_file".'
 kwargs['default'] = 0
 parser.add_argument('-t','--template',**kwargs)
 
 args = parser.parse_args()
+
+profile = args.profile
 
 fenfile = args.fen_file
 
@@ -135,10 +138,7 @@ def color_choice(fen):
   return scriptcolors[idx]
 
 home = os.getenv('HOME')
-if args.realthing:
-  anki_home = home + '/Library/Application Support/Anki2/Xander'
-else:
-  anki_home = home + '/Library/Anki/Xander'
+anki_home = home + '/Library/Application Support/Anki2/' + profile
 
 ################################################################################
 
