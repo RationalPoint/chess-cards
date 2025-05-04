@@ -2,7 +2,7 @@
 
 This is a no-frills Command-line API that I wrote for creating Anki flashcards with chess position on a Mac. I make no claims about its portability to other systems. 
 
-The file that holds your chess position data should be a yaml file for a collection of cards. See `test.yaml` for some examples. Here is a template showing the fields:
+Each Anki deck for chess position data is associated with a yaml file. See `test.yaml` for an example. Here is a template showing the fields:
 
 ```
  card1:
@@ -15,7 +15,7 @@ The file that holds your chess position data should be a yaml file for a collect
   movecheck:
 ```
 
-- 'card1': This field is not used, but should be distinct for each card. (See test.yaml.)
+- 'card1': This field is not used, but should be distinct for each card.
 - 'fen': a fen string for the position (required)
 - 'description': Description of the card, type of puzzle, where in the book it's from, etc. (optional)
 - 'instructions': Instructions for the puzzle (optional; if not given, "White/Black to move" will be detected from the fen and used)
@@ -49,6 +49,8 @@ To verify that everything is working correctly, create flashcards with data in t
   $ ./cards.py PaulMorphy test.yaml -d "Test Deck"
 ```
 Open Anki, and you should have two decks of cards: "Test Deck" and "Hard: Test Deck". 
+
+_It is not necessary to create all of your flashcards before running the `cards.py` script._ The script will compare the card info in your yaml file with the info already stored in Anki, and it will only create cards that it hasn't seen. 
 
 ## Anki Settings for Chess Study
 
