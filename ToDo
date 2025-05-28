@@ -1,5 +1,6 @@
 -*-org-*-
 
+* TODO When cards are new, and in a custom deck, cards.py treats them as not existing and creates duplicates.
 * TODO Is there an attribute to organize decks together? This seemed possible when I looked at shared decks.
 * DONE Trick for find-and-replace with increment? C-M-% text \,(+ 1 \#)
 * DONE Recreating duplicate cards with color scheme changed. Why?
